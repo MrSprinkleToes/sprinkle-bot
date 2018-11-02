@@ -1,1 +1,1 @@
-worker: python sprinklebot.py
+worker: python bot.py
