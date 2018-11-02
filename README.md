@@ -1,2 +1,0 @@
-# BoredBot
-BoredBot
