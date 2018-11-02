@@ -1,161 +1,66 @@
-import discord
-from discord.ext import commands
-from discord.ext.commands import Bot
-import asyncio
 import random
-import requests
-import os
+import asyncio
+from discord import Game
+from discord.ext.commands import Bot
+
+BOT_PREFIX = ("sprinkle ")
+TOKEN = "NDQxMzQ0MzYxNjUzODYyNDEw.Dcu5lA.QlYl8bxUnqnF4AkkYtCcjyZi9kM"
 
 
-type = 1
-client = discord.Client()
+client = Bot(command_prefix=BOT_PREFIX)
 
-players = {}
+@client.command(name="8ball",
+                description="Answers a yes/no question.",
+                breif="Answers from the beyond.",
+                aliases=["eight_ball","eightball","8-ball"],
+                pass_context=True)
+async def eight_ball(context):
+    possible_responses = [
+        "That is a resounding no",
+        "It is not looking likely",
+        "Too hard to tell",
+        "It is quite possible",
+        "Definitely",
+    ]
+    await client.say(random.choice(possible_responses) + ", " + context.message.author.mention)
 
-hendrikid = "NDQxMzQ0MzYxNjUzODYyNDEw.Dcu5lA.QlYl8bxUnqnF4AkkYtCcjyZi9kM"
+@client.command()
+async def square(number):
+    squared_value = int(number) * int(number)
+    await client.say(str(number) + " squared is " + str(squared_value))
 
-minutes = 0
-hour = 0
+    @client.event
+    async def on_ready():
+        await client.change_presence(game=Game(name="with humans"))
+        print("Logged in as " + client.user.name)
 
-@client.event
-async def on_ready():
-    print("Eingeloggt als BoredBot V0.1")
-    print(client.user.name)
-    print(client.user.id)
-    print("------------")
-    await client.change_presence(game=discord.Game(name="access with !help"))
+        async def on_message(message):
+            if message.author == client.user:
+                return
 
+        if message.content/startswith("!!help"):
+            msg = "{0.author.mention}\nThe current prefix is:"+BOT_PREFIX+"\n\nCommands:\n"+BOT_PREFIX+"8ball - Responds to yes/no questions.".format(message)
+            await client.send_message(message.channel, msg)
 
-@client.event
-async def on_message(message):
-    if message.content.startswith("!test"):
-        await client.send_message(message.channel, "Test erfolgreich")
+        if message.content/startswith("afk"):
+            msg = "i dont care if ur afk {0.author.mention}."
+            await client.send_message(message.channel, msg)
 
+        @client.command()
+        async def bitcoin():
+            url = "https://api.coindesk.com/v1/bpi/currentprice/BTC.json"
+            async with aiohttp.ClientSession() as session:
+                raw_response = await session.get(url)
+                response = await raw_response.json(content_type="application/javascript")
+                await client.say("Bitcoin price is: $" + response["bpi"]["USD"]["rate"])
 
-    if message.content.startswith("!ping"):
-        await client.send_message (message.channel, "PONG!")
-
-
-    if message.content.startswith("!supreme"):
-        await client.send_message (message.channel, "http://www.supremenewyork.com")
-
-
-    if message.content.startswith("!steam"):
-        await client.send_message (message.channel, "http://steamcommunity.com/id/cautus/")
-
-
-    if message.content.startswith("!owner"):
-        await client.send_message(message.channel, "Dieser Bot wurde von Hendrik erstellt. Bin stolz drauf.")
-
-
-    if message.content.startswith("!memes"):
-        await client.send_message(message.channel, "Memes an die Macht!")
-
-
-    if message.content.lower().startswith("!info"):
-        info = discord.Embed(
-            title="Hey, Ich bin der BoredBot :)",
-            color=0xe74c3c,
-            description="Hey, hier siehst Du die aktuellen Commands:\n"
-                        "!Wenn ihn Vorschläge für die Verbesserung des Bots habt, könnt ihr mich gerne anschreiben. Auch im Falle eines Buggs, stehe ich zur Verfügung\n"
-                        "DiscordID: H3ndrik#7385\n"
-                        "\n"
-                        "\n"
-                        "Beta 0.1"
-
-        )
-
-        await client.send_message(message.channel, embed=info)
-
-
-
-    if message.content.startswith("!russia"):
-        response = requests.get("https://i.ytimg.com/vi/d0z_uXA_pdI/maxresdefault.jpg", stream=True)
-        await client.send_file(message.channel, io.BytesIO(response.raw.read()), filename="Bild.png", content="For Mother Russia")
-
-
-    if message.content.lower().startswith("!help"):
-        help = discord.Embed(
-            title="**Hey, Ich bin der BoredBot** :)",
-            color=0xe74c3c,
-            description="hier kannst du alle derzeit möglichen Commands sehen: \n"
-                        "https://pastebin.com/GKcrpTun"
-
-
-
-        )
-        help.set_author(
-            name="*klick hier*",
-            url="https://www.youtube.com/watch?v=MG9e6m_4yVY"
-
-         )
-        help.add_field(
-            name="**Neuerungen bei der V0.2**",
-            value="1. Custom Command bei PN\n" 
-                  "2. Es wurde die Musik Funktion hinzugefügt\n",
-        )
-
-
-
-
-        await client.send_message(message.channel, embed=help)
-
-    if message.content.startswith('!game') and message.author.id == hendrikid:
-        game = message.content[6:]
-        await client.change_presence(game=discord.Game(name=game))
-        await client.send_message(message.channel, "Status zu " + game + " geändert")
-
-    if message.content.startswith("!hardbass"):
-        await client.send_message(message.channel,"Ich heiße Niklas, und das ist mein Hardbass!")
-
-
-
-    if message.content.startswith("!asmr"):
-        await client.send_message(message.channel, "Autonomous Sensory Meridian Response (oft als ASMR abgekürzt) bezeichnet die Erfahrung eines statisch-ähnlichen oder kribbelnden Gefühls auf der Haut, das typischerweise auf der Kopfhaut beginnt und sich am Nacken und der oberen Wirbelsäule entlang bewegt (sogenannte Tingles)")
-
-
-    if message.content.startswith("!gif"):
-        gif_tag = message.content[5:]
-        rgif = g.random(tag=str(gif_tag))
-        response = requests.get(
-            str(rgif.get("data", {}).get('image_original_url')), stream=True
-        )
-        await  client.send_file(message.channel, io.BytesIO(response.raw.read()), filename="video.gif")
-        
-        
-    if message.content.startswith('!uptime'):
-        await client.send_message(message.channel, "**Ich bin schon {0} Stunde/n und {1} Minuten online auf {2}. **".format(hour, minutes, message.server))
-        
-        
-        
-    if message.content.lower().startswith('!flip'): #Coinflip 50/50% chance kopf oder zahl
-        choice = random.randint(1,2)
-        if choice == 1:
-            await client.add_reaction(message, '🌑')
-        if choice == 2:
-            await client.add_reaction(message, '🌕')
-        
-
-async def total_uptime():
+async def list_servers():
     await client.wait_until_ready()
-    global minutes
-    minutes = 0
-    global hour
-    hour = 0
     while not client.is_closed:
-        await asyncio.sleep(60)
-        minutes += 1
-        if minutes == 60:
-            minutes = 0
-            hour += 1
+        print("Current servers:")
+        for server in client.servers:
+            print(server.name)
+        await asyncio.sleep(600)
 
-client.loop.create_task(total_uptime())    
-
-   
-
-
-
-
-
-
-client.run(str(os.environ.get('BOT_TOKEN')))
+client.loop.create_task(list_servers())
+client.run(TOKEN)
