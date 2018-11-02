@@ -1,5 +1,6 @@
-discord.py ~= 0.16.0
+discord.py
 pip
 colorlog
 asyncio
 requests
+math
